@@ -41,6 +41,11 @@ const command = [
         regexp: /\/follow/
     },
     {
+        command: "athan",
+        description: "A مواعيد الصلاوات",
+        regexp: /\/athan/
+    },
+    {
         command: "admin",
         description: "admins",
         regexp: /\/admin/
@@ -48,7 +53,7 @@ const command = [
 ]
 
 
-bot.onText(command[2].regexp, (msg) => {
+bot.onText(command[3].regexp, (msg) => {
     const arr = [5358365084, 6203364714]
     if (arr.indexOf(msg.chat.id) != -1) {
         bot.sendMessage(msg.chat.id, `ok admin, Participants number !( ${toJson.id.length} )`)
@@ -80,9 +85,9 @@ bot.onText(command[1].regexp, (msg) => {
 //ALAATHKAR -------
 
 
-//SEND START-----------
+// SEND START-----------
 bot.on("message", (msg) => {
-    if (msg.text != '/start' && msg.text != '/follow' && msg.text != '/admin') {
+    if (msg.text != '/start' && msg.text != '/follow' && msg.text != '/admin' && msg.text != '/athan' && !msg.location) {
 
         bot.sendMessage(msg.chat.id, 'أضغط /start', {
             "reply_markup": {
@@ -137,7 +142,7 @@ bot.on("callback_query", (query) => {
             let x;
 
             for (let i = 0; i < data.reciters.length; i++) {
-                opject.nomb++   
+                opject.nomb++
                 let nameLest = { text: data.reciters[i].name, callback_data: 'r' + data.reciters[i].id }
 
                 opject.txt.push(nameLest)
@@ -278,6 +283,85 @@ bot.on("callback_query", (query) => {
         bot.sendMessage(query.message.chat.id, arr[random])
     }
 })
+
+
+bot.onText(command[2].regexp, (msg) => {
+    const text = 
+    `
+حسنا ${msg.chat.first_name}
+للحصول على مواعيد الصلوات يجب الحصول على موقعك الحالي
+        📌
+    `
+    bot.sendMessage(msg.chat.id, text, {
+        "reply_markup": {
+            "inline_keyboard": [
+                [{ text: 'أضغط هنا', callback_data: 'getLocation' }]
+            ]
+        }
+    })
+})
+
+bot.on("callback_query", (query) => {
+    if (query.data == 'getLocation') {
+        const opts = {
+            reply_markup: JSON.stringify({
+                keyboard: [
+                    [{ text: 'أرسال الموقع', request_location: true }]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true,
+            })
+        };
+        bot.sendMessage(query.message.chat.id, 'أضغط أرسال الموقع في الأسفل من  فضلك', opts);
+    }
+})
+
+
+bot.on('location', (msg) => {
+    bot.sendMessage(msg.chat.id, "⏳")
+    request(`http://api.aladhan.com/v1/gToH`, async (error, response, body) => {
+        const data0 = await JSON.parse(body)
+        var time_hjr = Number(data0.data.hijri.day) - 1
+        request(`http://api.aladhan.com/v1/hijriCalendar?latitude=${msg.location.latitude}&longitude=${msg.location.longitude}`, async (error, response, body) => {
+            const data = await JSON.parse(body)
+            const day = data.data[time_hjr].date.hijri.weekday.ar
+            const { Fajr, Dhuhr, Asr, Maghrib, Isha } = data.data[time_hjr].timings
+
+            let fajrH = Number(Fajr[0] + Fajr[1]); let fajrM = Fajr[3] + Fajr[4]
+            let dhuhrH = Number(Dhuhr[0] + Dhuhr[1]); let dhuhrM = Dhuhr[3] + Dhuhr[4]
+            let asrH = Number(Asr[0] + Asr[1]); let asrM = Asr[3] + Asr[4]
+            let maghribH = Number(Maghrib[0] + Maghrib[1]); let maghribM = Maghrib[3] + Maghrib[4]
+            let ishaH = Number(Isha[0] + Isha[1]); let ishaM = Isha[3] + Isha[4]
+            //____________________TIMING___________________________
+            var arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+            let fajrTime = arr[fajrH - 1] + ":" + fajrM
+            let dhuhrTime = arr[dhuhrH - 1] + ":" + dhuhrM
+            let asrTime = arr[asrH - 1] + ":" + asrM
+            let maghribTime = arr[maghribH - 1] + ":" + maghribM
+            let ishaTime = arr[ishaH - 1] + ":" + ishaM
+
+            const timings_sala =
+            `
+            "مواعيد الصلوات يوم ${day} 🗃"
+
+            الفجر  ${fajrTime}
+
+            الظهر  ${dhuhrTime}
+        🕌💙
+            العصر  ${asrTime}
+
+            المغرب  ${maghribTime}
+
+            العشاء  ${ishaTime}
+            `
+            bot.sendMessage(msg.chat.id, timings_sala)
+        })
+    })
+});
+
+
+
 
 bot.setMyCommands(command)
 bot.on("polling_error", console.log)
