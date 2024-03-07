@@ -408,7 +408,7 @@ const command2 = [
 bot2.onText(command2[0].regexp, (msg) => {
     const text = `
 اهلا بك في بوت التحميل من استكرام
-ارسل لي الرابط الخاص بالفيديو وسف اقوم بتحميله لك
+ارسل لي الرابط الخاص بالفيديو وسوف اقوم بتحميله لك
     `
     bot2.sendMessage(msg.chat.id, text)
 })
@@ -431,7 +431,7 @@ bot2.on('message', (msg) => {
                 if (member.status != 'left' && member.status != 'kicked') {
                     console.log('ok')
                     let newUrl = 'https://dd' + msg.text.slice(12)
-                    let donc = `✔✔ هذا الفيديو لك تستطيع تنزيل المزيد اذا اردت \n ${newUrl}`
+                    let donc = `✔✔ هذا لك تستطيع تنزيل المزيد اذا اردت \n ${newUrl}`
                     bot2.sendMessage(msg.chat.id, donc, {
                         'reply_markup': {
                             "inline_keyboard": [
