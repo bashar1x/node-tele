@@ -1,80 +1,55 @@
 console.log("hi")
 import request from "request"
-import fs from "fs"
 import TelegramBot from "node-telegram-bot-api"
 import express from "express"
-const bot = new TelegramBot("6954342408:AAFLUF3FCWfOYSkBRQIm0DWNCLuTVDWEuOI", {
-    polling: true
-})
+const bot = new TelegramBot("6954342408:AAFLUF3FCWfOYSkBRQIm0DWNCLuTVDWEuOI", { polling: true })
+const bot2 = new TelegramBot("7172074992:AAG4kyft_V5vECIwA-OdibQngrj8MnzLF9s", { polling: true })
 
-//CRAET NEW ID---------
-let red = fs.readFileSync("./ids.json")
-let toJson = JSON.parse(red)
-bot.on("message", (msg) => {
-    if (toJson.id.indexOf(msg.chat.id) == -1) {
-        bot.sendMessage(msg.chat.id, "craet you now to bot")
-        toJson.id.push(msg.chat.id)
-        fs.writeFileSync("./ids.json", JSON.stringify(toJson))
-    }
-})
-
-
-const app = express()
+const app = express();
+app.use(express.json())
+app.use(express.urlencoded())
 app.get('/', (req, res) => {
-    res.send('hello world!')
-})
-const port = process.env.PORT || 3000
-app.listen(port, () => {
-    console.log(`this app   http://localhost:${port}`)
-})
+    res.json({ run: 'run bot' })
+}); app.listen(process.env.PORT || 3000, () => { console.log(`listen`) })
 
+// PING BOT ----
+setInterval(async () => {
+    const res = await fetch('https://node-tele.onrender.com/')
+    console.log(await res.json())
+}, 100 * 1000)
 
 const command = [
     {
         command: "start",
-        description: "start now",
+        description: "ابدأ الأن",
         regexp: /\/start/
     },
     {
         command: "follow",
-        description: "F قم بمتابعة المطور",
+        description: "قم بمتابعة المطور",
         regexp: /\/follow/
     },
     {
         command: "athan",
-        description: "A مواعيد الصلاوات",
+        description: "مواعيد الصلاوات",
         regexp: /\/athan/
     },
-    {
-        command: "admin",
-        description: "admins",
-        regexp: /\/admin/
-    }
 ]
 
-
-bot.onText(command[3].regexp, (msg) => {
-    const arr = [5358365084, 6203364714]
-    if (arr.indexOf(msg.chat.id) != -1) {
-        bot.sendMessage(msg.chat.id, `ok admin, Participants number !( ${toJson.id.length} )`)
-    } else {
-        bot.sendMessage(msg.chat.id, `sorry ${msg.from.first_name} you not admin, admins this bot @bashar1_x  @Amjad_kh1`)
-    }
-})
 
 
 
 
 //FOLLOW ME ----------
 bot.onText(command[1].regexp, (msg) => {
-    bot.sendMessage(msg.chat.id, "تستطيع متابعة المطور على..🎯", {
+    bot.sendMessage(msg.chat.id, "تستطيع متابعة المطور على..", {
         'reply_markup': {
             "inline_keyboard": [
                 [
                     { text: "telegram", url: "https://t.me/bashar1_x" },
                     { text: "instagram", url: "https://instagram.com/bashar1_x" },
                     { text: "facebook", url: "https://facebook.com/bashar1.x" },
-                    { text: "whatsapp", url: "https://wa.me/0938768556" }
+                    { text: "whatsapp", url: "https://wa.me/0985780023" }
                 ]
             ]
         }
@@ -104,34 +79,57 @@ bot.on("message", (msg) => {
 
 //MSG DESCRIPTION AND SEND READER--------
 bot.onText(command[0].regexp, (msg) => {
-    const text =
-        `
+    bot.getChatMember('@bashar_prog', ctx.chat.id).then(async (member) => {
+        if (member.status != 'left' && member.status != 'kicked') {
+            const text = `
 مرحبا ${msg.chat.first_name}
 
-أضغط على الزر في الأسفل للحصول على قوائم القرائ
+أضغط الزر في الأسفل للحصول على قوائم القراء
 
-ثم قم بأختيار القارئ
+ثم قم بأختيار القارء
 للحصول على السور التي قام بتلاوتها
-
-بعدها اختر السورة
-
-    🎁💛
 `
-    bot.sendMessage(msg.chat.id, text, {
-        "reply_markup": {
-            "inline_keyboard": [
-                [{ text: 'أضغط هنا', callback_data: 'cl_reader' }]
-            ]
+            bot.sendMessage(msg.chat.id, text, {
+                "reply_markup": {
+                    "inline_keyboard": [
+                        [{ text: 'أضغط هنا', callback_data: 'cl_reader' }]
+                    ]
+                }
+            })
+
+        } else if (member.status == 'kicked') {
+            bot.sendMessage(ctx.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
+                'reply_markup': {
+                    "inline_keyboard": [
+                        [
+                            { text: "bashar", url: "https://t.me/bashar1_x" },
+                            { text: "amjad", url: "https://t.me/amjad_kh1" },
+                            { text: "hamam", url: "https://t.me/hmam1_x" }
+                        ]
+                    ]
+                }
+            })
+        } else if (member.status == 'left') {
+            bot.sendMessage(ctx.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
+                'reply_markup': {
+                    "inline_keyboard": [
+                        [{ text: "اشترك من هنا", url: "https://t.me/bashar_prog" }],
+                        [{ text: "تابعني على انستكرام", url: "https://instagram.com/bashar1_x" }]
+                    ]
+                }
+            })
         }
     })
+
+
 })
 
 
 //GET READER-----
-bot.on("callback_query", (query) => {
+bot.on("callback_query", async (query) => {
 
     if (query.data == 'cl_reader') {
-        bot.sendMessage(query.message.chat.id, `سيتم أرسال قوائم القرائ الأن...📑`)
+        await bot.sendMessage(query.message.chat.id, `سيتم أرسال قوائم القرائ الأن...📑`)
         request(`https://mp3quran.net/api/v3/reciters?language=ar`, async (error, response, body) => {
             const data = await JSON.parse(body)
 
@@ -140,7 +138,6 @@ bot.on("callback_query", (query) => {
                 nomb: 0
             }
             let x;
-
             for (let i = 0; i < data.reciters.length; i++) {
                 opject.nomb++
                 let nameLest = { text: data.reciters[i].name, callback_data: 'r' + data.reciters[i].id }
@@ -185,7 +182,6 @@ let server_0 = 'https://server6.mp3quran.net/jaman/'
 let name_0 = ''
 bot.on("callback_query", (query) => {
     if (query.data[0] == 'r') {
-
         request(`https://mp3quran.net/api/v3/reciters?language=ar&reciter=${query.data.slice(1)}`, async (error, response, body) => {
             const data = await JSON.parse(body)
             let surah_1 = data.reciters[0].moshaf[0].surah_list
@@ -196,7 +192,7 @@ bot.on("callback_query", (query) => {
             server_0 = data.reciters[0].moshaf[0].server
             name_0 = data.reciters[0].name
 
-            bot.sendMessage(query.message.chat.id, `سيتم أرسال قوائم السور بصوت ${name_0}`)
+            await bot.sendMessage(query.message.chat.id, `سيتم أرسال قوائم السور بصوت ${name_0}`)
         })
         // -   - - - - - -  -- - - -  -  - - - -
         function req2(surah_1) {
@@ -262,63 +258,98 @@ bot.on("callback_query", (query) => {
 //SEND SWRA------
 bot.on("callback_query", (query) => {
     if (query.data[0] == 's') {
-        bot.sendMessage(query.message.chat.id, `أتمنا لك حسن اللأستماع بسوط القارئ ${name_0}
-        🔊☪..
-        
-        ما رأيك بدعم المطور
-        أضغط هنا(/follow)`)
+        bot.getChatMember('@bashar_prog', ctx.chat.id).then(async (member) => {
+            if (member.status != 'left' && member.status != 'kicked') {
+                let red_m = query.data.slice(1)
+                let nomb = ''
+                if (red_m >= 1 && red_m <= 9) {
+                    nomb = "00"
+                } else if (red_m >= 10 && red_m <= 99) {
+                    nomb = "0"
+                } else if (red_m >= 100) {
+                    nomb = ""
+                }
+                bot.sendAudio(query.message.chat.id, `${server_0}${nomb}${red_m}.mp3`, {
+                    caption: `أتمنى لك حسن اللاستماع بصوت القارئ ${name_0} 💛🎁`
+                })
+            } else if (member.status == 'kicked') {
+                bot.sendMessage(ctx.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
+                    'reply_markup': {
+                        "inline_keyboard": [
+                            [
+                                { text: "bashar", url: "https://t.me/bashar1_x" },
+                                { text: "amjad", url: "https://t.me/amjad_kh1" },
+                                { text: "hamam", url: "https://t.me/hmam1_x" }
+                            ]
+                        ]
+                    }
+                })
+            } else if (member.status == 'left') {
+                bot.sendMessage(ctx.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
+                    'reply_markup': {
+                        "inline_keyboard": [
+                            [{ text: "اشترك من هنا", url: "https://t.me/bashar_prog" }],
+                            [{ text: "تابعني على انستكرام", url: "https://instagram.com/bashar1_x" }]
+                        ]
+                    }
+                })
+            }
+        })
 
-        let red_m = query.data.slice(1)
-        let nomb = ''
-        if (red_m >= 1 && red_m <= 9) {
-            nomb = "00"
-        } else if (red_m >= 10 && red_m <= 99) {
-            nomb = "0"
-        } else if (red_m >= 100) {
-            nomb = ""
-        }
-        bot.sendAudio(query.message.chat.id, `${server_0}${nomb}${red_m}.mp3`)
-        const arr = ["🍃", "❤", "🧡", "💛", "💚", "💙", "🤍", "💜", "🤎", "💖", "💝"]
-        const random = Math.floor(Math.random() * arr.length - 1) + 1;
-        bot.sendMessage(query.message.chat.id, arr[random])
+
+
     }
 })
 
 
 bot.onText(command[2].regexp, (msg) => {
-    const text = 
-    `
+    bot.getChatMember('@bashar_prog', ctx.chat.id).then(async (member) => {
+        if (member.status != 'left' && member.status != 'kicked') {
+            const text =
+                `
 حسنا ${msg.chat.first_name}
-للحصول على مواعيد الصلوات يجب الحصول على موقعك الحالي
-        📌
+للحصول على مواعيد الصلوات يجب الحصول على موقعك الحالي 📌
+
+أضغط أرسال الموقع في الأسفل من  فضلك
     `
-    bot.sendMessage(msg.chat.id, text, {
-        "reply_markup": {
-            "inline_keyboard": [
-                [{ text: 'أضغط هنا', callback_data: 'getLocation' }]
-            ]
+            const opts = {
+                reply_markup: JSON.stringify({
+                    keyboard: [
+                        [{ text: 'أرسال الموقع', request_location: true }]
+                    ],
+                    resize_keyboard: true,
+                    one_time_keyboard: true,
+                })
+            };
+            bot.sendMessage(msg.chat.id, text, opts);
+        } else if (member.status == 'kicked') {
+            bot.sendMessage(ctx.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
+                'reply_markup': {
+                    "inline_keyboard": [
+                        [
+                            { text: "bashar", url: "https://t.me/bashar1_x" },
+                            { text: "amjad", url: "https://t.me/amjad_kh1" },
+                            { text: "hamam", url: "https://t.me/hmam1_x" }
+                        ]
+                    ]
+                }
+            })
+        } else if (member.status == 'left') {
+            bot.sendMessage(ctx.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
+                'reply_markup': {
+                    "inline_keyboard": [
+                        [{ text: "اشترك من هنا", url: "https://t.me/bashar_prog" }],
+                        [{ text: "تابعني على انستكرام", url: "https://instagram.com/bashar1_x" }]
+                    ]
+                }
+            })
         }
     })
-})
 
-bot.on("callback_query", (query) => {
-    if (query.data == 'getLocation') {
-        const opts = {
-            reply_markup: JSON.stringify({
-                keyboard: [
-                    [{ text: 'أرسال الموقع', request_location: true }]
-                ],
-                resize_keyboard: true,
-                one_time_keyboard: true,
-            })
-        };
-        bot.sendMessage(query.message.chat.id, 'أضغط أرسال الموقع في الأسفل من  فضلك', opts);
-    }
-})
 
+})
 
 bot.on('location', (msg) => {
-    bot.sendMessage(msg.chat.id, "⏳")
     request(`http://api.aladhan.com/v1/gToH`, async (error, response, body) => {
         const data0 = await JSON.parse(body)
         var time_hjr = Number(data0.data.hijri.day) - 1
@@ -342,13 +373,13 @@ bot.on('location', (msg) => {
             let ishaTime = arr[ishaH - 1] + ":" + ishaM
 
             const timings_sala =
-            `
+                `
             "مواعيد الصلوات يوم ${day} 🗃"
 
             الفجر  ${fajrTime}
 
             الظهر  ${dhuhrTime}
-        🕌💙
+
             العصر  ${asrTime}
 
             المغرب  ${maghribTime}
@@ -360,8 +391,87 @@ bot.on('location', (msg) => {
     })
 });
 
+const command2 = [
+    {
+        command: "start",
+        description: "Start bot",
+        regexp: /\/start/
+    },
+    {
+        command: "more",
+        description: "More Bot",
+        regexp: /\/more/
+    },
+
+]
+
+bot2.onText(command2[0].regexp, (msg) => {
+    const text = `
+اهلا بك في بوت التحميل من استكرام
+ارسل لي الرابط الخاص بالفيديو وسف اقوم بتحميله لك
+    `
+    bot2.sendMessage(msg.chat.id, text)
+})
+bot2.onText(command2[1].regexp, (msg) => {
+    bot2.sendMessage(msg.chat.id, 'تستطيع تجربة المزيد من البوتات', {
+        'reply_markup': {
+            "inline_keyboard": [
+                [{ text: "المساعد الكامل", url: "https://t.me/helps_full_bot" }],
+                [{ text: "القران الكريم", url: "https://t.me/quran1arabic_bot" }]
+            ]
+        }
+    })
+})
+
+// DON INSTAGRAM ------
+bot2.on('message', (msg) => {
+    if (msg.text != '/start' && msg.text != '/more') {
+        if (msg.text.slice(0, 5) == 'https' && msg.text.slice(12, 21) == 'instagram') {
+            bot2.getChatMember('@bashar_prog', msg.chat.id).then(async (member) => {
+                if (member.status != 'left' && member.status != 'kicked') {
+                    console.log('ok')
+                    let newUrl = 'https://dd' + msg.text.slice(12)
+                    let donc = `✔✔ هذا الفيديو لك تستطيع تنزيل المزيد اذا اردت \n ${newUrl}`
+                    bot2.sendMessage(msg.chat.id, donc, {
+                        'reply_markup': {
+                            "inline_keyboard": [
+                                [{ text: "تابني على انستكرام", url: "https://instagram.com/bashar1_x" }]
+                            ]
+                        }
+                    })
+                } else if (member.status == 'kicked') {
+                    bot2.sendMessage(msg.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
+                        'reply_markup': {
+                            "inline_keyboard": [
+                                [
+                                    { text: "bashar", url: "https://t.me/bashar1_x" },
+                                    { text: "amjad", url: "https://t.me/amjad_kh1" },
+                                    { text: "hamam", url: "https://t.me/hmam1_x" }
+                                ]
+                            ]
+                        }
+                    })
+                } else if (member.status == 'left') {
+                    bot2.sendMessage(msg.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقنة', {
+                        'reply_markup': {
+                            "inline_keyboard": [
+                                [{ text: "اشترك من هنا", url: "https://t.me/bashar_prog" }],
+                                [{ text: "تابني على انستكرام", url: "https://instagram.com/bashar1_x" }]
+                            ]
+                        }
+                    })
+                }
+            })
+        } else if (msg.text.slice(0, 5) != 'https') {
+            bot2.sendMessage(msg.chat.id, 'قم بأرسال الروابط فقط من فضلك')
+        } else if (msg.text.slice(12, 21) != 'instagram') {
+            bot2.sendMessage(msg.chat.id, 'هذا ليس رابط فيديو من انستكرام')
+        }
+    }
+})
 
 
 
 bot.setMyCommands(command)
+bot2.setMyCommands(command2)
 bot.on("polling_error", console.log)
