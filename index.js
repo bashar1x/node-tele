@@ -258,7 +258,7 @@ bot.on("callback_query", (query) => {
 //SEND SWRA------
 bot.on("callback_query", (query) => {
     if (query.data[0] == 's') {
-        bot.getChatMember('@bashar_prog', msg.chat.id).then(async (member) => {
+        bot.getChatMember('@bashar_prog', query.message.chat.id).then(async (member) => {
             if (member.status != 'left' && member.status != 'kicked') {
                 let red_m = query.data.slice(1)
                 let nomb = ''
@@ -273,7 +273,7 @@ bot.on("callback_query", (query) => {
                     caption: `أتمنى لك حسن اللاستماع بصوت القارئ ${name_0} 💛🎁`
                 })
             } else if (member.status == 'kicked') {
-                bot.sendMessage(msg.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
+                bot.sendMessage(query.message.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
                     'reply_markup': {
                         "inline_keyboard": [
                             [
@@ -285,7 +285,7 @@ bot.on("callback_query", (query) => {
                     }
                 })
             } else if (member.status == 'left') {
-                bot.sendMessage(msg.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
+                bot.sendMessage(query.message.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
                     'reply_markup': {
                         "inline_keyboard": [
                             [{ text: "اشترك من هنا", url: "https://t.me/bashar_prog" }],
