@@ -79,7 +79,7 @@ bot.on("message", (msg) => {
 
 //MSG DESCRIPTION AND SEND READER--------
 bot.onText(command[0].regexp, (msg) => {
-    bot.getChatMember('@bashar_prog', ctx.chat.id).then(async (member) => {
+    bot.getChatMember('@bashar_prog', msg.chat.id).then(async (member) => {
         if (member.status != 'left' && member.status != 'kicked') {
             const text = `
 مرحبا ${msg.chat.first_name}
@@ -98,7 +98,7 @@ bot.onText(command[0].regexp, (msg) => {
             })
 
         } else if (member.status == 'kicked') {
-            bot.sendMessage(ctx.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
+            bot.sendMessage(msg.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
                 'reply_markup': {
                     "inline_keyboard": [
                         [
@@ -110,7 +110,7 @@ bot.onText(command[0].regexp, (msg) => {
                 }
             })
         } else if (member.status == 'left') {
-            bot.sendMessage(ctx.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
+            bot.sendMessage(msg.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
                 'reply_markup': {
                     "inline_keyboard": [
                         [{ text: "اشترك من هنا", url: "https://t.me/bashar_prog" }],
@@ -258,7 +258,7 @@ bot.on("callback_query", (query) => {
 //SEND SWRA------
 bot.on("callback_query", (query) => {
     if (query.data[0] == 's') {
-        bot.getChatMember('@bashar_prog', ctx.chat.id).then(async (member) => {
+        bot.getChatMember('@bashar_prog', msg.chat.id).then(async (member) => {
             if (member.status != 'left' && member.status != 'kicked') {
                 let red_m = query.data.slice(1)
                 let nomb = ''
@@ -273,7 +273,7 @@ bot.on("callback_query", (query) => {
                     caption: `أتمنى لك حسن اللاستماع بصوت القارئ ${name_0} 💛🎁`
                 })
             } else if (member.status == 'kicked') {
-                bot.sendMessage(ctx.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
+                bot.sendMessage(msg.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
                     'reply_markup': {
                         "inline_keyboard": [
                             [
@@ -285,7 +285,7 @@ bot.on("callback_query", (query) => {
                     }
                 })
             } else if (member.status == 'left') {
-                bot.sendMessage(ctx.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
+                bot.sendMessage(msg.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
                     'reply_markup': {
                         "inline_keyboard": [
                             [{ text: "اشترك من هنا", url: "https://t.me/bashar_prog" }],
@@ -303,7 +303,7 @@ bot.on("callback_query", (query) => {
 
 
 bot.onText(command[2].regexp, (msg) => {
-    bot.getChatMember('@bashar_prog', ctx.chat.id).then(async (member) => {
+    bot.getChatMember('@bashar_prog', msg.chat.id).then(async (member) => {
         if (member.status != 'left' && member.status != 'kicked') {
             const text =
                 `
@@ -323,7 +323,7 @@ bot.onText(command[2].regexp, (msg) => {
             };
             bot.sendMessage(msg.chat.id, text, opts);
         } else if (member.status == 'kicked') {
-            bot.sendMessage(ctx.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
+            bot.sendMessage(msg.chat.id, `انت محضور من الأستخدام, راجع احد المشرفين لمساعدتك`, {
                 'reply_markup': {
                     "inline_keyboard": [
                         [
@@ -335,7 +335,7 @@ bot.onText(command[2].regexp, (msg) => {
                 }
             })
         } else if (member.status == 'left') {
-            bot.sendMessage(ctx.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
+            bot.sendMessage(msg.chat.id, 'عذرا ! \n يجب عليك اولا الأشتراك بالقناة', {
                 'reply_markup': {
                     "inline_keyboard": [
                         [{ text: "اشترك من هنا", url: "https://t.me/bashar_prog" }],
