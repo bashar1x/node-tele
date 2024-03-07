@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 // PING BOT ----
 setInterval(async () => {
     const res = await fetch('https://node-tele.onrender.com/')
-    console.log(await res.json())
+    const data = await res.json()
 }, 100 * 1000)
 
 const command = [
